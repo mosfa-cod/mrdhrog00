@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>لعبة أبطال الضرب</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Cairo',sans-serif;
+background:linear-gradient(120deg,#ff9bd2,#ff4da6,#6b21a8);
+min-height:100vh;
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:20px;
+}
+
+.btn{
+background:#ff4da6;
+color:white;
+padding:12px;
+border-radius:12px;
+font-weight:bold;
+}
+
+.gridbox{
+background:#ff80bf;
+color:white;
+padding:12px;
+border-radius:12px;
+text-align:center;
+font-weight:bold;
+}
+
+.teacher{
+font-size:70px;
+animation:jump 2s infinite;
+}
+
+@keyframes jump{
+0%{transform:translateY(0)}
+50%{transform:translateY(-10px)}
+100%{transform:translateY(0)}
+}
+
+.coin{
+font-size:22px;
+}
+
+</style>
+
+</head>
+
+<body class="flex justify-center p-4">
+
+<div class="max-w-xl w-full">
+
+<header class="text-center text-white mb-6">
+
+<h1 class="text-3xl font-black">🧮 أبطال الضرب</h1>
+
+<p>تعلم والعب واربح الكؤوس</p>
+
+</header>
+
+<div class="card">
+
+<!-- الصفحة الرئيسية -->
+
+<div id="home">
+
+<div class="teacher text-center">👨‍🏫</div>
+
+<div class="text-center text-lg mb-4">
+
+🪙 العملات: <span id="coins">0</span>
+
+</div>
+
+<div class="grid grid-cols-2 gap-3">
+
+<button class="btn" onclick="showLessons()">📚 الدروس</button>
+
+<button class="btn" onclick="showMap()">🗺️ المراحل</button>
+
+<button class="btn" onclick="toggleMusic()">🎵 موسيقى</button>
+
+<button class="btn" onclick="toggleDark()">🌙 دارك مود</button>
+
+</div>
+
+</div>
+
+<!-- صفحة الدروس -->
+
+<div id="lessons" class="hidden">
+
+<h2 class="text-center font-bold mb-4">اختر الجدول</h2>
+
+<div id="tablesList" class="grid grid-cols-3 gap-2"></div>
+
+<button class="btn mt-4 w-full" onclick="goHome()">رجوع</button>
+
+</div>
+
+<!-- صفحة الجدول -->
+
+<div id="tablePage" class="hidden">
+
+<h2 id="tableTitle" class="text-center font-bold mb-4"></h2>
+
+<div id="tableGrid" class="grid grid-cols-2 gap-2"></div>
+
+<button class="btn mt-4 w-full" onclick="showLessons()">رجوع</button>
+
+</div>
+
+<!-- خريطة المراحل -->
+
+<div id="map" class="hidden">
+
+<h2 class="text-center font-bold mb-4">خريطة المراحل</h2>
+
+<div id="levels" class="grid grid-cols-4 gap-2"></div>
+
+<button class="btn mt-4 w-full" onclick="goHome()">رجوع</button>
+
+</div>
+
+<!-- صفحة اللعبة -->
+
+<div id="game" class="hidden">
+
+<div class="flex justify-between mb-3">
+
+<div>⭐ <span id="score">0</span></div>
+
+<div>🏆 <span id="cup">0</span></div>
+
+</div>
+
+<div class="text-center text-5xl font-black text-pink-600">
+
+<span id="n1"></span> × <span id="n2"></span>
+
+</div>
+
+<div id="answerBox" class="text-center text-3xl font-bold mt-4 bg-gray-100 p-3 rounded"></div>
+
+<div id="numbers" class="grid grid-cols-3 gap-2 mt-4"></div>
+
+<div class="grid grid-cols-2 gap-3 mt-3">
+
+<button class="btn" onclick="clearAns()">مسح</button>
+
+<button class="btn" onclick="check()">تأكيد</button>
+
+</div>
+
+<button class="btn mt-4 w-full" onclick="goHome()">رجوع</button>
+
+</div>
+
+</div>
+
+</div>
+
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_8c3b7e0fcb.mp3">
+</audio>
+
+<script>
+
+/* الصوت */
+
+function speak(text){
+
+let msg=new SpeechSynthesisUtterance(text)
+
+msg.lang="ar-SA"
+
+speechSynthesis.speak(msg)
+
+}
+
+/* الصفحات */
+
+function hideAll(){
+
+home.style.display="none"
+lessons.style.display="none"
+tablePage.style.display="none"
+map.style.display="none"
+game.style.display="none"
+
+}
+
+function goHome(){
+
+hideAll()
+home.style.display="block"
+
+}
+
+/* موسيقى */
+
+let playing=false
+
+function toggleMusic(){
+
+let m=document.getElementById("music")
+
+if(!playing){
+m.play()
+playing=true
+}else{
+m.pause()
+playing=false
+}
+
+}
+
+/* دارك مود */
+
+function toggleDark(){
+
+document.body.classList.toggle("bg-black")
+
+}
+
+/* الدروس */
+
+function showLessons(){
+
+hideAll()
+lessons.style.display="block"
+
+let box=document.getElementById("tablesList")
+
+box.innerHTML=""
+
+for(let i=1;i<=12;i++){
+
+let b=document.createElement("button")
+
+b.className="gridbox"
+
+b.innerText="جدول "+i
+
+b.onclick=()=>openTable(i)
+
+box.appendChild(b)
+
+}
+
+}
+
+function openTable(n){
+
+hideAll()
+
+tablePage.style.display="block"
+
+document.getElementById("tableTitle").innerText="جدول "+n
+
+let grid=document.getElementById("tableGrid")
+
+grid.innerHTML=""
+
+for(let i=1;i<=12;i++){
+
+let d=document.createElement("div")
+
+d.className="gridbox"
+
+d.innerText=n+" × "+i+" = "+(n*i)
+
+grid.appendChild(d)
+
+}
+
+}
+
+/* خريطة المراحل */
+
+function showMap(){
+
+hideAll()
+
+map.style.display="block"
+
+let box=document.getElementById("levels")
+
+box.innerHTML=""
+
+for(let i=1;i<=12;i++){
+
+let b=document.createElement("button")
+
+b.className="gridbox"
+
+b.innerText="مرحلة "+i
+
+b.onclick=()=>startGame(i)
+
+box.appendChild(b)
+
+}
+
+}
+
+/* اللعبة */
+
+let level=1
+let n1,n2
+let score=0
+let coins=0
+let cups=0
+
+function startGame(l){
+
+hideAll()
+
+game.style.display="block"
+
+level=l
+
+score=0
+
+nextQ()
+
+}
+
+/* سؤال */
+
+function nextQ(){
+
+n1=level
+
+n2=Math.floor(Math.random()*12)+1
+
+document.getElementById("n1").innerText=n1
+
+document.getElementById("n2").innerText=n2
+
+speak(n1+" ضرب "+n2)
+
+}
+
+/* لوحة الارقام */
+
+let currentAnswer=""
+
+function createNumbers(){
+
+let box=document.getElementById("numbers")
+
+for(let i=1;i<=9;i++){
+
+let b=document.createElement("button")
+
+b.className="btn"
+
+b.innerText=i
+
+b.onclick=()=>addNum(i)
+
+box.appendChild(b)
+
+}
+
+let zero=document.createElement("button")
+
+zero.className="btn"
+
+zero.innerText="0"
+
+zero.onclick=()=>addNum(0)
+
+box.appendChild(zero)
+
+}
+
+function addNum(n){
+
+currentAnswer+=n
+
+document.getElementById("answerBox").innerText=currentAnswer
+
+}
+
+function clearAns(){
+
+currentAnswer=""
+
+document.getElementById("answerBox").innerText=""
+
+}
+
+/* التحقق */
+
+function check(){
+
+let correct=n1*n2
+
+if(Number(currentAnswer)==correct){
+
+score+=10
+
+coins+=1
+
+document.getElementById("coins").innerText=coins
+
+speak("أحسنت يا بطل")
+
+if(score>=50){
+
+cups++
+
+document.getElementById("cup").innerText=cups
+
+speak("فزت بالكأس")
+
+goHome()
+
+}
+
+}else{
+
+speak("حاول مرة أخرى")
+
+}
+
+clearAns()
+
+nextQ()
+
+}
+
+createNumbers()
+
+</script>
+
+</body>
+
+</html>
